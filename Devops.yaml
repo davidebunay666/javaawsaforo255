@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: service-devops
-        image: antony0618/simple-devops:latest
+        image: davidbunay66/javaaforo255:latest
         ports:
         - containerPort: 8080
 ---
