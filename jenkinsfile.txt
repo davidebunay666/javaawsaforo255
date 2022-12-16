@@ -1,45 +1,46 @@
 pipeline {
     agent any
      environment {
-        AWS_ACCESS_KEY_ID     = credentials('jenkis_aws_key_id')
-        AWS_SECRET_ACCESS_KEY = credentials('jenkis_aws_key_secret')
-    } 
- stages {
-     
-     stage('SCM') {
+        AWS_ACCESS_KEY_ID     = credentials('jenkins_aws_key_id')
+        AWS_SECRET_ACCESS_KEY = credentials('jenkins_aws_key_secret')
+    }
+
+    stages {
+        stage('SCM') {
             steps {
-                git branch: 'main', url: 'https://github.com/Stywar/FirstDevOpsJob'
-                
+               git branch: 'main', url: 'https://github.com/davidebunay666/javaawsaforo255'
             }
         }
-    stage ('Build') {
-         steps {
-             bat(script: 'mvn -f pom.xml clean install', returnStdout: true);
-         }
-        }
-        
-     stage ('Docker Build') {
+
+    
+    stage ('Build Java maven') {
            steps {
-               script {
-         // Build and push image with Jenkins' docker-plugin
-            withDockerRegistry([credentialsId: "dockerhub", url: "https://index.docker.io/v1/"]) {
-            image = docker.build("antony0618/simple-devops")
-            image.push()    
-            }
-               }
+             bat(script: 'dir' , returnStdout:true);
+            //bat(script: 'dotnet restore' , returnStdout:true);
+            //bat(script: 'dotnet build' , returnStdout:true);
+            //bat(script: 'dotnet test' , returnStdout:true);
            }
-        }
-        
-         stage ('K8S Deploy') {
+       }
+    
+    stage ("Docker Build") {
+           
+           steps{
+             // docker login  
+             bat(script: 'docker build -t davidbunay66/javaaforo255:latest .' , returnStdout:true);
+             bat(script: 'docker push davidbunay66/javaaforo255:latest' , returnStdout:true);  
+           }
+       }
+       
+    stage ('K8S Deploy') {
             steps {
               bat (script:  'aws configure set region us-east-1',returnStdout: true);
-              bat(script: 'kubectl config use-context K8S-developer@demo-eks.us-east-1.eksctl.io  --kubeconfig=%KUBE_PATH_CONFIG%', returnStdout: true);
+              bat(script: 'kubectl config use-context arn:aws:eks:us-east-1:200694411616:cluster/cluster-devops  --kubeconfig=%KUBE_PATH_CONFIG%', returnStdout: true);
               bat(script: 'Kubectl delete --all pods --kubeconfig=%KUBE_PATH_CONFIG% & kubectl apply -f Devops.yaml --kubeconfig=%KUBE_PATH_CONFIG%', returnStdout: true);
-            }
-               
+            }      
             
-        }
+    }
     
-      
-     }
+    
+    
+    }
 }
